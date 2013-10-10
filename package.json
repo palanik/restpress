@@ -1,0 +1,27 @@
+{
+  "name": "restpress",
+  "version": "0.1.0",
+  "private": "true",
+  "description": "Creating RESTful interface with express",
+  "homepage": "https://github.com/palanik",
+  "keywords": [
+    "restpress",
+    "restful",
+    "express",
+    "api"
+  ],
+  "author": "N. Palani Kumanan",
+  "contributors": [
+    "N. Palani Kumanan"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/palanik/restpress.git"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "main": "index",
+  "engines": {
+    "node": ">= 0.4.0"
+  }
+}
