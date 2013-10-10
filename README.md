@@ -1,4 +1,4 @@
 restpress
 =========
 
-Shift your focus from routes to resources on building RESTful apps with node express.
+Shift your focus to resources from routes, while building RESTful apps with node express.
