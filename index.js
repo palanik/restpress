@@ -9,7 +9,7 @@ function restpress(app, basePath) {
 }
 
 // Lists resource collection
-restpress.prototype.index = function(resource, callback) {
+restpress.prototype.index = restpress.prototype.list = function(resource, callback) {
 	this.app.get(this.basePath + resource, function(req, res) {
 		req.resource = resource;
 		return callback(req, res);
