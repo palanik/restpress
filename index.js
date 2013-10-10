@@ -8,7 +8,7 @@ function restpress(app, basePath) {
 	}
 }
 
-
+// Lists resource collection
 restpress.prototype.index = function(resource, callback) {
 	this.app.get(this.basePath + resource, function(req, res) {
 		req.resource = resource;
@@ -16,6 +16,7 @@ restpress.prototype.index = function(resource, callback) {
 	});
 };
 
+// Retrieve the addressed resource
 restpress.prototype.get = function(resource, callback) {
 	this.app.get(this.basePath + resource + '/:id', function(req, res) {
 		req.resource = resource;
@@ -23,6 +24,7 @@ restpress.prototype.get = function(resource, callback) {
 	});
 };
 
+// Create a new resource
 restpress.prototype.post = function(resource, callback) {
 	this.app.post(this.basePath + resource, function(req, res) {
 		req.resource = resource;
@@ -30,6 +32,7 @@ restpress.prototype.post = function(resource, callback) {
 	});
 };
 
+// Replace/Update the addressed resource
 restpress.prototype.put = function(resource, callback) {
 	this.app.put(this.basePath + resource + '/:id', function(req, res) {
 		req.resource = resource;
@@ -37,6 +40,7 @@ restpress.prototype.put = function(resource, callback) {
 	});
 };
 
+// Modify the addressed resource
 restpress.prototype.patch = function(resource, callback) {
 	this.app.patch(this.basePath + resource + '/:id', function(req, res) {
 		req.resource = resource;
@@ -44,12 +48,12 @@ restpress.prototype.patch = function(resource, callback) {
 	});
 };
 
+// Delete the addressed resource
 restpress.prototype.delete = function(resource, callback) {
 	this.app.delete (this.basePath + resource + '/:id',	function(req, res) {
 		req.resource = resource;
 		return callback(req, res);
 	});
 };
-
 
 module.exports = restpress;
