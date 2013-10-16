@@ -1,59 +1,106 @@
 // Copyright 2013 N. Palani Kumanan.  All rights reserved.
 
-function restpress(app, basePath) {
+var restActions = {};
+
+// http://en.wikipedia.org/wiki/Representational_state_transfer#RESTful_web_APIs
+restActions['index'] = restActions['list'] = {
+	"route" : '',
+	"method" : 'get'
+};
+restActions['putAll'] = {
+	"route" : '',
+	"method" : 'put'
+};
+restActions['post'] = {
+	"route" : '',
+	"method" : 'post'
+};
+restActions['deleteAll'] = restActions['delAll'] = {
+	"route" : '',
+	"method" : 'delete'
+};
+
+restActions['get'] = {
+	"route" : '/:id',
+	"method" : 'get'
+};
+restActions['put'] = {
+	"route" : '/:id',
+	"method" : 'put'
+};
+restActions['delete'] = restActions['del'] = {
+	"route" : '/:id',
+	"method" : 'delete'
+};
+
+function restpress(app, basePath, resource, actions) {
 	this.app = app;
-	this.basePath = basePath || '/';
-	if (! /\//.test(this.basePath)) {
-		this.basePath += '/';
+	basePath = basePath || '/';
+	if (! /\//.test(basePath)) {
+		basePath += '/';
+	}
+	this.resource = resource;
+	this.resourcePath = basePath + resource;
+
+	// Set resource name	
+	this.app.use(this.resourcePath, function(req, res, next) {
+		req.resource = resource;
+		next();
+	});
+	
+	actions = actions || restActions;
+	// Create methods for known actions
+	this.actionCallbacks = {};
+	for (var a in actions) {
+		if (actions.hasOwnProperty(a)) {
+			this.addAction(a, actions[a]);
+		}
 	}
 }
 
-// Lists resource collection
-restpress.prototype.index = restpress.prototype.list = function(resource, callback) {
-	this.app.get(this.basePath + resource, function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
+restpress.prototype.addAction = function(name, action) {
+	
+	this.actionCallbacks[name] = false;
+	
+	this[name] = function(callback) {
+		if (!this.actionCallbacks[name]) {
+			// Set this Action name on request object
+			this.app[action.method](this.resourcePath + action.route, function(req, res, next) {
+				req.action = name;
+				next();
+			});
+			this.actionCallbacks[name] = true;
+		}
+		// insert actionPath as first argument
+		[].unshift.call(arguments, this.resourcePath + action.route);
+
+		// Call express app method function
+		this.app[action.method].apply(this.app, arguments);
+		
+		// return this for chaining
+		return this;
+	};
+}
+
+restpress.prototype.use = function(callback) {
+  var self = this;
+	this.app.use(this.resourcePath, function (req, res, next) {
+		if (req.resource == self.resource){
+			return callback(req, res, next);
+		}
 	});
+  
+  return this;
 };
 
-// Retrieve the addressed resource
-restpress.prototype.get = function(resource, callback) {
-	this.app.get(this.basePath + resource + '/:id', function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
-	});
+restpress.prototype.resource = function() {
+	return this.resource;	
 };
 
-// Create a new resource
-restpress.prototype.post = function(resource, callback) {
-	this.app.post(this.basePath + resource, function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
-	});
+restpress.prototype.path = function() {
+	return this.resourcePath;
 };
 
-// Replace/Update the addressed resource
-restpress.prototype.put = function(resource, callback) {
-	this.app.put(this.basePath + resource + '/:id', function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
-	});
-};
-
-// Modify the addressed resource
-restpress.prototype.patch = function(resource, callback) {
-	this.app.patch(this.basePath + resource + '/:id', function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
-	});
-};
-
-// Delete the addressed resource
-restpress.prototype.delete = function(resource, callback) {
-	this.app.delete (this.basePath + resource + '/:id',	function(req, res) {
-		req.resource = resource;
-		return callback(req, res);
-	});
-};
 
 module.exports = restpress;
+module.exports.actions = restActions;
