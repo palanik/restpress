@@ -11,7 +11,7 @@ restActions['putAll'] = {
 	"route" : '',
 	"method" : 'put'
 };
-restActions['post'] = {
+restActions['post'] = restActions['create'] = {
 	"route" : '',
 	"method" : 'post'
 };
@@ -20,11 +20,11 @@ restActions['deleteAll'] = restActions['delAll'] = {
 	"method" : 'delete'
 };
 
-restActions['get'] = {
+restActions['get'] = restActions['read'] = {
 	"route" : '/:id',
 	"method" : 'get'
 };
-restActions['put'] = {
+restActions['put'] = restActions['update'] = {
 	"route" : '/:id',
 	"method" : 'put'
 };
@@ -33,74 +33,145 @@ restActions['delete'] = restActions['del'] = {
 	"method" : 'delete'
 };
 
-function restpress(app, basePath, resource, actions) {
-	this.app = app;
+function restpress(basePath, resource, actions) {
 	basePath = basePath || '/';
 	if (! /\//.test(basePath)) {
 		basePath += '/';
 	}
-	this.resource = resource;
+	this.resourceName = resource;
 	this.resourcePath = basePath + resource;
 
-	// Set resource name	
+	this.actions = actions || restActions;
+	
+	this._futureUse = [];
+	this._futureActs = {};
+	
+	this._init();
+}
+
+restpress.prototype._init = function() {
+	this['use'] = function(callback) {
+		this._futureUse.push(arguments);
+	};
+	
+	// Create methods for known actions
+	for (var a in this.actions) {
+		if (this.actions.hasOwnProperty(a)) {
+			this._setFuture(a);
+		}
+	}
+};
+
+restpress.prototype._setFuture = function(a) {
+	var self = this;
+	this._futureActs[a] = [];
+	this[a] = function() {
+		self._futureActs[a].push(arguments);
+		return self;
+	};
+};
+
+restpress.prototype.app = function (app) {
+	if (arguments.length == 0) {
+		return this.app;
+	}
+	
+	this.app = app;
+	
+	var self = this;
+	// Set resource name for all methods
 	this.app.use(this.resourcePath, function(req, res, next) {
-		req.resource = resource;
+		res.set('XX-Powered-By', 'Restpress');
+		req.resource = self;
 		next();
 	});
 	
-	actions = actions || restActions;
-	// Create methods for known actions
-	this.actionCallbacks = {};
-	for (var a in actions) {
-		if (actions.hasOwnProperty(a)) {
-			this.addAction(a, actions[a]);
+	// Set use method to connect to app
+	this.use = function(callback) {
+		this.app.use(this.resourcePath, function (req, res, next) {
+			if (req.resource == self){
+				return callback(req, res, next);
+			}
+			return next();
+		});
+	  
+	  return this;
+	};
+	
+	// Activate deferred uses
+	var self = this;
+	this._futureUse.forEach(function (u) {
+		self.use.apply(self, u);
+	});
+	
+	// Clear defferred uses
+	this._futureUse = {};
+	
+	
+	// Now for actions
+	// Iterate thru deferred action calls
+	for (var a in this._futureActs) {
+		if (this._futureActs.hasOwnProperty(a)) {
+			// Save calls
+			var futureCalls = this._futureActs[a];
+			
+			// Set action methods to _once_
+			this[a] = function () {
+				var action = self.actions[a];
+				var name = a;
+				self.app[action.method](self.resourcePath + action.route, function(req, res, next) {
+					req.action = name;
+					next();
+				});
+				
+				// Set action methods to connect to app
+				self[a] = function() {
+					var action = self.actions[a];
+					// insert actionPath as first argument
+					[].unshift.call(arguments, self.resourcePath + action.route);
+			
+					// Call express app verb function
+					self.app[action.method].apply(self.app, arguments);
+					
+					// return this for chaining
+					return self;
+				};
+				
+				// After calling _once_, call regular action method
+				return self[a].apply(self, arguments);
+			};
+			
+			// Call _once_ action method for all saved future calls
+			futureCalls.forEach(function (fc) {
+				return self[a].apply(self, fc);
+			});
+			
 		}
 	}
-}
-
-restpress.prototype.addAction = function(name, action) {
 	
-	this.actionCallbacks[name] = false;
-	
-	this[name] = function(callback) {
-		if (!this.actionCallbacks[name]) {
-			// Set this Action name on request object
-			this.app[action.method](this.resourcePath + action.route, function(req, res, next) {
-				req.action = name;
-				next();
-			});
-			this.actionCallbacks[name] = true;
-		}
-		// insert actionPath as first argument
-		[].unshift.call(arguments, this.resourcePath + action.route);
-
-		// Call express app method function
-		this.app[action.method].apply(this.app, arguments);
-		
-		// return this for chaining
-		return this;
-	};
-}
-
-restpress.prototype.use = function(callback) {
-  var self = this;
-	this.app.use(this.resourcePath, function (req, res, next) {
-		if (req.resource == self.resource){
-			return callback(req, res, next);
-		}
-	});
-  
-  return this;
+	// Clear deferred actions
+	this._futureActs = {};
 };
 
-restpress.prototype.resource = function() {
-	return this.resource;	
+
+restpress.prototype.name = function() {
+	return this.resourceName;	
 };
 
 restpress.prototype.path = function() {
 	return this.resourcePath;
 };
 
+// Super method
+restpress.prototype.rest = function(methods) {
+	for (var m in methods) {
+		if (methods.hasOwnProperty(m)) {
+			this[m](methods[m]);
+		}
+	}
+	
+	return this;
+};
 
 module.exports = restpress;
 module.exports.actions = restActions;
