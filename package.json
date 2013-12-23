@@ -19,7 +19,11 @@
     "url": "git://github.com/palanik/restpress.git"
   },
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "express": "3.x",
+    "mocha": "*",
+    "supertest" : "*"
+  },
   "main": "index",
   "engines": {
     "node": ">= 0.4.0"
