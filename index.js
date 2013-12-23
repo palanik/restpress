@@ -1,34 +1,34 @@
 // Copyright 2013 N. Palani Kumanan.  All rights reserved.
 
-var restActions = {};
+var _restActions = {};
 
 // http://en.wikipedia.org/wiki/Representational_state_transfer#RESTful_web_APIs
-restActions['index'] = restActions['list'] = {
+_restActions['index'] = _restActions['list'] = {
 	"route" : '',
 	"method" : 'get'
 };
-restActions['putAll'] = {
+_restActions['putAll'] = {
 	"route" : '',
 	"method" : 'put'
 };
-restActions['post'] = restActions['create'] = {
+_restActions['post'] = _restActions['create'] = {
 	"route" : '',
 	"method" : 'post'
 };
-restActions['deleteAll'] = restActions['delAll'] = {
+_restActions['deleteAll'] = _restActions['delAll'] = {
 	"route" : '',
 	"method" : 'delete'
 };
 
-restActions['get'] = restActions['read'] = {
+_restActions['get'] = _restActions['read'] = {
 	"route" : '/:id',
 	"method" : 'get'
 };
-restActions['put'] = restActions['update'] = {
+_restActions['put'] = _restActions['update'] = {
 	"route" : '/:id',
 	"method" : 'put'
 };
-restActions['delete'] = restActions['del'] = {
+_restActions['delete'] = _restActions['del'] = {
 	"route" : '/:id',
 	"method" : 'delete'
 };
@@ -41,35 +41,78 @@ function restpress(basePath, resource, actions) {
 	this.resourceName = resource;
 	this.resourcePath = basePath + resource;
 
-	this.actions = actions || restActions;
+	this.actions = actions || _restActions;
+	if (this.actions.hasOwnProperty('all')) {
+		throw new Error('all is a reserverd action');
+	}
+
+	this.locals = function locals(obj) {
+	    for (var key in obj) {
+	    	locals[key] = obj[key];
+	    }
+	    return obj;
+	};
 	
-	this._futureUse = [];
-	this._futureActs = {};
+	this._stack = [];
+	this.endpoints = [];
 	
 	this._init();
 }
 
+
+// Special method 'all' that is applied to all known actions
+restpress.prototype.all = function() {
+	for (var a in this.actions) {
+		if (this.actions.hasOwnProperty(a)) {
+			this[a].apply(this, arguments);
+		}
+	}
+	
+	return this;
+};
+
 restpress.prototype._init = function() {
-	this['use'] = function(callback) {
-		this._futureUse.push(arguments);
+	var self = this;
+	
+	var identify = function(actionName, action) {
+		self[actionName](function(req, res, next) {
+			res.set('XX-Powered-By', 'Restpress');
+			req.resource = self;
+			req.actionName = actionName;
+			req.action = action;
+			next();
+		});
 	};
+
+	// Kick the can down the road for app to pick it up later
+	var deferRoutes = function(actionName) {
+		self[actionName] = function() {
+			var args = arguments;
+			self._stack.push({action : actionName, args : args});
+			return self;
+		};
+	};
+	
 	
 	// Create methods for known actions
 	for (var a in this.actions) {
 		if (this.actions.hasOwnProperty(a)) {
-			this._setFuture(a);
+			
+			// endpoints
+			var action = this.actions[a];
+			var endpoint = {name: a, route: this.resourcePath + action.route, method: action.method};
+			if (action.doc) {
+				endpoint.doc = action.doc;
+			}
+			self.endpoints.push(endpoint);
+			
+			deferRoutes(a);
+			identify(a, action);
 		}
 	}
+	
 };
 
-restpress.prototype._setFuture = function(a) {
-	var self = this;
-	this._futureActs[a] = [];
-	this[a] = function() {
-		self._futureActs[a].push(arguments);
-		return self;
-	};
-};
 
 restpress.prototype.app = function (app) {
 	if (arguments.length == 0) {
@@ -79,80 +122,45 @@ restpress.prototype.app = function (app) {
 	this.app = app;
 	
 	var self = this;
-	// Set resource name for all methods
-	this.app.use(this.resourcePath, function(req, res, next) {
-		res.set('XX-Powered-By', 'Restpress');
-		req.resource = self;
-		next();
-	});
 	
-	// Set use method to connect to app
-	this.use = function(callback) {
-		this.app.use(this.resourcePath, function (req, res, next) {
-			if (req.resource == self){
-				return callback(req, res, next);
-			}
-			return next();
+	// Set end points
+	if (this._endpoints == undefined) {
+		app.get(this.resourcePath + '/_endpoints', function (req, res, next) {
+			res.json(self.endpoints);
 		});
-	  
-	  return this;
+	}
+	
+	// Re-Create methods working via app for known actions
+	var routeViaApp = function(actionName, action, resourcePath) {
+		self[actionName] = function() {
+			// insert actionPath as first argument
+			[].unshift.call(arguments, resourcePath + action.route);
+	
+			// Call express app VERB function
+			self.app[action.method].apply(self.app, arguments);
+			
+			// return this for chaining
+			return self;
+		};
 	};
 	
-	// Activate deferred uses
-	var self = this;
-	this._futureUse.forEach(function (u) {
-		self.use.apply(self, u);
-	});
-	
-	// Clear defferred uses
-	this._futureUse = {};
-	
-	
-	// Now for actions
-	// Iterate thru deferred action calls
-	for (var a in this._futureActs) {
-		if (this._futureActs.hasOwnProperty(a)) {
-			// Save calls
-			var futureCalls = this._futureActs[a];
-			
-			// Set action methods to _once_
-			this[a] = function () {
-				var action = self.actions[a];
-				var name = a;
-				self.app[action.method](self.resourcePath + action.route, function(req, res, next) {
-					req.action = name;
-					next();
-				});
-				
-				// Set action methods to connect to app
-				self[a] = function() {
-					var action = self.actions[a];
-					// insert actionPath as first argument
-					[].unshift.call(arguments, self.resourcePath + action.route);
-			
-					// Call express app verb function
-					self.app[action.method].apply(self.app, arguments);
-					
-					// return this for chaining
-					return self;
-				};
-				
-				// After calling _once_, call regular action method
-				return self[a].apply(self, arguments);
-			};
-			
-			// Call _once_ action method for all saved future calls
-			futureCalls.forEach(function (fc) {
-				return self[a].apply(self, fc);
-			});
-			
+	for (var a in this.actions) {
+		if (this.actions.hasOwnProperty(a)) {
+			// Set action methods to connect to app
+			routeViaApp(a, this.actions[a], this.resourcePath);
 		}
 	}
 	
+	// make app pickup the kicked cans
+	this._stack.forEach(function(can) {
+		this[can.action].apply(this, can.args);
+	}, this);
+	
+	
 	// Clear deferred actions
-	this._futureActs = {};
+	delete this._stack;
+	
 };
-
 
 restpress.prototype.name = function() {
 	return this.resourceName;	
@@ -174,4 +182,4 @@ restpress.prototype.rest = function(methods) {
 };
 
 module.exports = restpress;
-module.exports.actions = restActions;
+module.exports.actions = _restActions;
