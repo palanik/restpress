@@ -33,13 +33,8 @@ _restActions['delete'] = _restActions['del'] = {
 	"method" : 'delete'
 };
 
-function restpress(basePath, resource, actions) {
-	basePath = basePath || '/';
-	if (! /\//.test(basePath)) {
-		basePath += '/';
-	}
+function restpress(resource, actions) {
 	this.resourceName = resource;
-	this.resourcePath = basePath + resource;
 
 	this.actions = actions || _restActions;
 	if (this.actions.hasOwnProperty('all')) {
@@ -100,7 +95,7 @@ restpress.prototype._init = function() {
 			
 			// endpoints
 			var action = this.actions[a];
-			var endpoint = {name: a, route: this.resourcePath + action.route, method: action.method};
+			var endpoint = {name: a, route: action.route, method: action.method};
 			if (action.doc) {
 				endpoint.doc = action.doc;
 			}
@@ -114,18 +109,32 @@ restpress.prototype._init = function() {
 };
 
 
-restpress.prototype.app = function (app) {
+restpress.prototype.app = function (basePath, app) {
 	if (arguments.length == 0) {
 		return this.app;
 	}
 	
+	if (arguments.length == 1) {
+		app = arguments[0];
+		basePath = '/';
+	}
+
+	if (! /\//.test(basePath)) {
+		basePath += '/';
+	}
+
 	this.app = app;
 	
 	var self = this;
 	
 	// Set end points
 	if (this._endpoints == undefined) {
-		app.get(this.resourcePath + '/_endpoints', function (req, res, next) {
+		// Adjust routes
+		this.endpoints.forEach(function(ep){
+			ep.route = basePath + self.resourceName + ep.route; 
+		});
+		
+		app.get(basePath + this.resourceName + '/_endpoints', function (req, res, next) {
 			res.json(self.endpoints);
 		});
 	}
@@ -147,7 +156,7 @@ restpress.prototype.app = function (app) {
 	for (var a in this.actions) {
 		if (this.actions.hasOwnProperty(a)) {
 			// Set action methods to connect to app
-			routeViaApp(a, this.actions[a], this.resourcePath);
+			routeViaApp(a, this.actions[a], basePath + this.resourceName);
 		}
 	}
 	
@@ -159,15 +168,10 @@ restpress.prototype.app = function (app) {
 	
 	// Clear deferred actions
 	delete this._stack;
-	
 };
 
 restpress.prototype.name = function() {
 	return this.resourceName;	
-};
-
-restpress.prototype.path = function() {
-	return this.resourcePath;
 };
 
 // Super method
@@ -183,3 +187,4 @@ restpress.prototype.rest = function(methods) {
 
 module.exports = restpress;
 module.exports.actions = _restActions;
+module.exports.version = '0.0.3';
