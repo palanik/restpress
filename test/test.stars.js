@@ -4,7 +4,7 @@ var express = require('express')
   
   
 describe('preApp-stars', function() {
-		var rp = new restpress('/space/', 'star');
+		var rp = new restpress('star');
 
 		// Methods
 		// List			
@@ -35,26 +35,27 @@ describe('preApp-stars', function() {
 		var app = express();
 		app.use(express.bodyParser());
 		
+		var basePath = '/';
 		rp.app(app);
 		
 	it('Index', function(done) {
-		request(app).get('/space/star').expect(200, "list stars", done);	
+		request(app).get(basePath + 'star').expect(200, "list stars", done);	
 	});
 
 	it('Create', function(done) {
-		request(app).post('/space/star').expect(200, 'create star', done);		
+		request(app).post(basePath + 'star').expect(200, 'create star', done);		
 	});
 
 	it('Read', function(done) {
-		request(app).get('/space/star/1').expect('read star', done);		
+		request(app).get(basePath + 'star/23').expect('read star', done);		
 	});
 
 	it('Update', function(done) {
-		request(app).put('/space/star/1').expect(200, 'update star', done);		
+		request(app).put(basePath + 'star/23').expect(200, 'update star', done);		
 	});
 
 	it('Delete', function(done) {
-		request(app).del('/space/star/1').expect(200, 'delete star', done);		
+		request(app).del(basePath + 'star/23').expect(200, 'delete star', done);		
 	});
 	
 });
@@ -64,8 +65,9 @@ describe('postApp-stars', function() {
 		var app = express();
 		app.use(express.bodyParser());
 		
-		var rp = new restpress('/space/', 'star');
-		rp.app(app);
+		var rp = new restpress('star');
+		var basePath = '/space/';
+		rp.app(basePath, app);
 
 		// Methods
 		// List			
@@ -95,23 +97,23 @@ describe('postApp-stars', function() {
 		
 		
 	it('Index', function(done) {
-		request(app).get('/space/star').expect(200, "list post stars", done);	
+		request(app).get(basePath + 'star').expect(200, "list post stars", done);	
 	});
 
 	it('Create', function(done) {
-		request(app).post('/space/star').expect(200, 'create post star', done);		
+		request(app).post(basePath + 'star').expect(200, 'create post star', done);		
 	});
 
 	it('Read', function(done) {
-		request(app).get('/space/star/1').expect('read post star', done);		
+		request(app).get(basePath + 'star/23').expect('read post star', done);		
 	});
 
 	it('Update', function(done) {
-		request(app).put('/space/star/1').expect(200, 'update post star', done);		
+		request(app).put(basePath + 'star/23').expect(200, 'update post star', done);		
 	});
 
 	it('Delete', function(done) {
-		request(app).del('/space/star/1').expect(200, 'delete post star', done);		
+		request(app).del(basePath + 'star/23').expect(200, 'delete post star', done);		
 	});
 	
 });
