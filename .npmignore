@@ -1,0 +1,7 @@
+.git*
+docs/
+examples/
+node_modules/
+test/
+.DS_Store
+Makefile
