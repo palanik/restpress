@@ -26,5 +26,4 @@ var app = express();
 msg.app(app);
 
 app.listen(3010);
-
 console.log("Try http://localhost:3010/message/");
