@@ -1,7 +1,6 @@
 {
   "name": "restpress",
   "version": "0.1.0",
-  "private": "false",
   "description": "Creating RESTful interface with express",
   "homepage": "https://github.com/palanik",
   "keywords": [
