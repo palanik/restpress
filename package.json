@@ -17,6 +17,9 @@
     "type": "git",
     "url": "git://github.com/palanik/restpress.git"
   },
+  "publishConfig": {
+    "registry" : "https://registry.npmjs.org"
+  },
   "dependencies": {},
   "devDependencies": {
     "express": "3.x",
