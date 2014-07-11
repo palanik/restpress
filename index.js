@@ -37,8 +37,14 @@ function restpress(resource, actions) {
 	this.resourceName = resource;
 
 	this.actions = actions || _restActions;
+	if (typeof this.actions == 'string') {	// if filename ...
+		var fs = require('fs');			// ... read json from file
+		var content = fs.readFileSync(this.actions);
+		this.actions = JSON.parse(content);
+	}
+
 	if (this.actions.hasOwnProperty('all')) {
-		throw new Error('all is a reserverd action');
+		throw new Error('all is a reserved action');
 	}
 
 	this.locals = function locals(obj) {
