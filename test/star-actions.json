@@ -1,0 +1,26 @@
+{
+	"list" : {
+		"route" : "",
+		"method" : "get"
+	},
+
+	"read" : {
+		"route" : "/:id",
+		"method" : "get"
+	},
+
+	"create" : {
+		"route" : "",
+		"method" : "post"
+	},
+
+	"update" : {
+		"route" : "/:id",
+		"method" : "put"
+	},
+
+	"delete" : {
+		"route" : "/:id",
+		"method" : "delete"
+	}
+}
