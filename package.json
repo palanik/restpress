@@ -17,6 +17,7 @@
     "type": "git",
     "url": "git://github.com/palanik/restpress.git"
   },
+  "license": "MIT",
   "publishConfig": {
     "registry" : "https://registry.npmjs.org"
   },
