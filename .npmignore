@@ -5,3 +5,4 @@ node_modules/
 test/
 .DS_Store
 Makefile
+.travis.yml

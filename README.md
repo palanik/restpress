@@ -1,6 +1,9 @@
 restpress
 =========
-Minimalist REST framework for express.
+Minimalist REST framework for [express](http://expressjs.com/).
+
+  [![NPM version](https://img.shields.io/npm/v/restpress.svg?style=flat)](https://www.npmjs.org/package/restpress)
+  [![Build Status](https://img.shields.io/travis/palanik/restpress.svg?style=flat)](https://travis-ci.org/palanik/restpress)
 
 msg.js
 ```js
@@ -43,13 +46,13 @@ Shift your focus from Routes to Resources, while building RESTful API with node 
 
 express applications are created by providing callbacks for defined routes.
 But, RESTFul APIs are more about resources and actions on the resources, than about the routes. Restpress brings the two together. 
-Just like connect is to node & express is to connect, restpress enhances express for creating RESTful applications.
+Just like connect is to node & express is to connect, restpress enhances express in creating RESTful applications.
 
 Create action oriented, restful resources independently and then inject them to your express application.
 Add multiple resources to the same express app.
 
-Although, you create your resources independently, restpress is not a http server and depends on an express application to run and serve the resources.
+Although, you create your resources independently, restpress is not a http server. It depends on an express application to run and serve the resources.
 
 ## Test
 
-    $ make test
+    $ npm test
