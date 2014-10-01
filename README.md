@@ -56,3 +56,7 @@ Although, you create your resources independently, restpress is not a http serve
 ## Test
 
     $ npm test
+
+### License
+
+  [MIT](LICENSE)
