@@ -37,6 +37,18 @@ app.js
 var express = require('express');
 var app = express();
 
+/*
+ * If your API uses POST/PUT methods, use bodyparser.
+ *
+ * // Express 3.x
+ * app.use(express.bodyParser());
+ *
+ * // Express 4.x
+ * var bodyParser = require('body-parser');
+ * app.use(bodyParser.json());
+ *
+ */
+
 require('msg').app(app);
 
 app.listen(3010);
