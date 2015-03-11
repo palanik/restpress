@@ -1,5 +1,6 @@
 var express = require('express')
   , request = require('supertest')
+  , assert = require('assert')
   , restpress = require('../');
   
   
@@ -9,26 +10,31 @@ describe('preApp-stars', function() {
 		// Methods
 		// List			
 		rp.list(function (req, res) {
+			assert.equal(req.actionName, 'list');
 			res.send(200, "list stars");
 		});
 		
 		// Read
 		rp.read(function (req, res) {
+			assert.equal(req.actionName, 'read');
 			res.send(200, "read star");
 		});
 		
 		// Create
 		rp.create(function (req, res) {
+			assert.equal(req.actionName, 'create');
 			res.send(200, "create star");
 		});
 		
 		// Update
 		rp.update(function (req, res) {
+			assert.equal(req.actionName, 'update');
 			res.send(200, "update star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
+			assert.equal(req.actionName, 'delete');
 			res.send(200, "delete star");
 		});
 		
