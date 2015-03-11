@@ -75,16 +75,6 @@ restpress.prototype.all = function() {
 restpress.prototype._init = function() {
 	var self = this;
 	
-	var identify = function(actionName, action) {
-		self[actionName](function(req, res, next) {
-			res.set('XX-Powered-By', 'Restpress');
-			req.resource = self;
-			req.actionName = actionName;
-			req.action = action;
-			next();
-		});
-	};
-
 	// Kick the can down the road for app to pick it up later
 	var deferRoutes = function(actionName) {
 		self[actionName] = function() {
@@ -108,7 +98,6 @@ restpress.prototype._init = function() {
 			self.endpoints.push(endpoint);
 			
 			deferRoutes(a);
-			identify(a, action);
 		}
 	}
 	
@@ -147,7 +136,19 @@ restpress.prototype.app = function (basePath, app) {
 	
 	// Re-Create methods working via app for known actions
 	var routeViaApp = function(actionName, action, resourcePath) {
+		// prefix function to set rest values
+		var identify = function(req, res, next) {
+			res.set('XX-Powered-By', 'Restpress');
+			req.resource = self;
+			req.actionName = actionName;
+			req.action = action;
+			next();
+		};
+
 		self[actionName] = function() {
+			// insert identify as second argument
+            [].unshift.call(arguments, identify);
+
 			// insert actionPath as first argument
 			[].unshift.call(arguments, resourcePath + action.route);
 	
