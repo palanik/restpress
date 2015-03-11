@@ -2,6 +2,7 @@ var restpress = require('../../index');
 
 var rp = new restpress('stars');
 // Dataset
+// Stars and distance from Sun
 var stars = [
 				{
 					"name" : "Sun",
@@ -28,7 +29,7 @@ rp.all(function (req, res, next) {
 	
 	next();
 	
-	if (res.locals.restData != undefined) {
+	if (res.locals.restData !== undefined) {
 		res.json(res.locals.restData);
 	}
 });

@@ -116,7 +116,7 @@ restpress.prototype._init = function() {
 
 
 restpress.prototype.app = function (basePath, app) {
-	if (arguments.length == 0) {
+	if (arguments.length === 0) {
 		return this.app;
 	}
 	
@@ -134,7 +134,7 @@ restpress.prototype.app = function (basePath, app) {
 	var self = this;
 	
 	// Set end points
-	if (this._endpoints == undefined) {
+	if (this._endpoints === undefined) {
 		// Adjust routes
 		this.endpoints.forEach(function(ep){
 			ep.route = basePath + self.resourceName + ep.route; 
