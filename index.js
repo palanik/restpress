@@ -3,7 +3,7 @@
 var _restActions = {};
 
 // http://en.wikipedia.org/wiki/Representational_state_transfer#RESTful_web_APIs
-_restActions['index'] = _restActions['list'] = {
+_restActions['index'] = {
 	"route" : '',
 	"method" : 'get'
 };
@@ -11,26 +11,34 @@ _restActions['putAll'] = {
 	"route" : '',
 	"method" : 'put'
 };
-_restActions['post'] = _restActions['create'] = {
+_restActions['create'] = {
 	"route" : '',
 	"method" : 'post'
 };
-_restActions['deleteAll'] = _restActions['delAll'] = {
+_restActions['deleteAll'] = {
 	"route" : '',
 	"method" : 'delete'
 };
-
-_restActions['get'] = _restActions['read'] = {
+_restActions['read'] = {
 	"route" : '/:id',
 	"method" : 'get'
 };
-_restActions['put'] = _restActions['update'] = {
+_restActions['update'] = {
 	"route" : '/:id',
 	"method" : 'put'
 };
-_restActions['delete'] = _restActions['del'] = {
+_restActions['delete'] = {
 	"route" : '/:id',
 	"method" : 'delete'
+};
+
+var _aliasActions = {
+	"list": 'index', 
+	"post": 'create', 
+	"delAll": 'deleteAll', 
+	"get": 'read', 
+	"put": 'update', 
+	"del": 'delete'
 };
 
 function restpress(resource, actions) {
@@ -85,7 +93,7 @@ restpress.prototype._init = function() {
 	};
 	
 	
-	// Create methods for known actions
+	// Create defer methods for all defined actions
 	for (var a in this.actions) {
 		if (this.actions.hasOwnProperty(a)) {
 			
@@ -100,7 +108,13 @@ restpress.prototype._init = function() {
 			deferRoutes(a);
 		}
 	}
-	
+
+	// Aliases - point to defer methods of original
+	if (this.actions === _restActions) {
+		for (a in _aliasActions) {
+			self[a] = self[_aliasActions[a]];
+		}
+	}
 };
 
 
@@ -158,9 +172,9 @@ restpress.prototype.app = function (basePath, app) {
 
 			// Hack for restify where 'delete' method is 'del'
 			var appMethod = action.method;
-			if (appMethod == 'delete'
-					&& typeof self.app[appMethod] !== 'function'
-					&& typeof self.app['del'] === 'function') {
+			if (appMethod == 'delete' &&
+					typeof self.app[appMethod] !== 'function' &&
+					typeof self.app['del'] === 'function') {
 					appMethod = 'del';
 			}
 
@@ -176,6 +190,13 @@ restpress.prototype.app = function (basePath, app) {
 		if (this.actions.hasOwnProperty(a)) {
 			// Set action methods to connect to app
 			routeViaApp(a, this.actions[a], basePath + this.resourceName);
+		}
+	}
+
+	// Aliases - point to 'route via app' methods of original actions
+	if (this.actions === _restActions) {
+		for (a in _aliasActions) {
+			self[a] = self[_aliasActions[a]];
 		}
 	}
 	
