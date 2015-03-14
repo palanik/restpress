@@ -155,9 +155,17 @@ restpress.prototype.app = function (basePath, app) {
 
 			// insert actionPath as first argument
 			[].unshift.call(arguments, resourcePath + action.route);
-	
+
+			// Hack for restify where 'delete' method is 'del'
+			var appMethod = action.method;
+			if (appMethod == 'delete'
+					&& typeof self.app[appMethod] !== 'function'
+					&& typeof self.app['del'] === 'function') {
+					appMethod = 'del';
+			}
+
 			// Call express app VERB function
-			self.app[action.method].apply(self.app, arguments);
+			self.app[appMethod].apply(self.app, arguments);
 			
 			// return this for chaining
 			return self;
