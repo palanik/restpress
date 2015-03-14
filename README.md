@@ -29,6 +29,16 @@ msg.get(function(req, res) {
 	res.json(data[req.params.id - 1]);
 });
 
+msg.create(function(req, res) {
+  data.push({"id" : data.length, "message" : req.body.message});
+  res.json(data[data.length - 1]);
+});
+
+msg.update(function(req, res) {
+  data[req.params.id - 1].message = req.body.message;
+  res.json(data[req.params.id - 1]);
+});
+
 module.exports = msg;
 ```
 
@@ -43,11 +53,10 @@ var app = express();
  * // Express 3.x
  * app.use(express.bodyParser());
  *
- * // Express 4.x
- * var bodyParser = require('body-parser');
- * app.use(bodyParser.json());
- *
  */
+// Express 4.x
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
 
 require('msg').app(app);
 
@@ -56,7 +65,7 @@ app.listen(3010);
 
 Shift your focus from Routes to Resources, while building RESTful API with node express.
 
-express applications are created by providing callbacks for defined routes.
+Generally, express applications are built by providing callbacks to defined routes.
 But, RESTFul APIs are more about resources and actions on the resources, than about the routes. Restpress brings the two together. 
 Just like connect is to node & express is to connect, restpress enhances express in creating RESTful applications.
 

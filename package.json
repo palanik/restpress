@@ -19,13 +19,16 @@
   },
   "license": "MIT",
   "publishConfig": {
-    "registry" : "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org"
   },
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
-    "express": "3.x",
+    "express": "4.x",
+    "body-parser": "1.x",
+    "restify": "3.x",
     "mocha": "*",
-    "supertest" : "*"
+    "supertest": "*"
   },
   "scripts": {
     "test": "mocha --reporter spec"

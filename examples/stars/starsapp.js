@@ -5,7 +5,7 @@ var app = express();
 app.set('port', process.env.PORT || 3010);
 
 // Use body parser before calling restpress
-app.use(express.bodyParser());
+app.use(require('body-parser').json());
 
 // 
 stars.app(app);
