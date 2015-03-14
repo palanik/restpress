@@ -9,37 +9,41 @@ describe('preApp-stars', function() {
 
 		// Methods
 		// List			
-		rp.list(function (req, res) {
-			assert.equal(req.actionName, 'list');
-			res.send(200, "list stars");
+		rp.list(function (req, res, next) {
+			assert.equal(req.actionName, 'index');
+			next();
 		});
 		
+		rp.list(function (req, res) {
+			res.status(200).send("list stars");
+		});
+
 		// Read
 		rp.read(function (req, res) {
 			assert.equal(req.actionName, 'read');
-			res.send(200, "read star");
+			res.status(200).send("read star");
 		});
 		
 		// Create
 		rp.create(function (req, res) {
 			assert.equal(req.actionName, 'create');
-			res.send(200, "create star");
+			res.status(200).send("create star");
 		});
 		
 		// Update
 		rp.update(function (req, res) {
 			assert.equal(req.actionName, 'update');
-			res.send(200, "update star");
+			res.status(200).send("update star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
 			assert.equal(req.actionName, 'delete');
-			res.send(200, "delete star");
+			res.status(200).send("delete star");
 		});
 		
 		var app = express();
-		app.use(express.bodyParser());
+		app.use(require('body-parser').json());
 		
 		var basePath = '/';
 		rp.app(app);
@@ -69,7 +73,7 @@ describe('preApp-stars', function() {
 
 describe('postApp-stars', function() {
 		var app = express();
-		app.use(express.bodyParser());
+		app.use(require('body-parser').json());
 		
 		var rp = new restpress('star');
 		var basePath = '/space/';
@@ -78,27 +82,27 @@ describe('postApp-stars', function() {
 		// Methods
 		// List			
 		rp.list(function (req, res) {
-			res.send(200, "list post stars");
+			res.status(200).send("list post stars");
 		});
 		
 		// Read
 		rp.read(function (req, res) {
-			res.send(200, "read post star");
+			res.status(200).send("read post star");
 		});
 		
 		// Create
 		rp.create(function (req, res) {
-			res.send(200, "create post star");
+			res.status(200).send("create post star");
 		});
 		
 		// Update
 		rp.update(function (req, res) {
-			res.send(200, "update post star");
+			res.status(200).send("update post star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
-			res.send(200, "delete post star");
+			res.status(200).send("delete post star");
 		});
 		
 		
@@ -130,31 +134,31 @@ describe('fileAction-stars', function() {
 		// Methods
 		// List			
 		rp.list(function (req, res) {
-			res.send(200, "list stars");
+			res.status(200).send("list stars");
 		});
 		
 		// Read
 		rp.read(function (req, res) {
-			res.send(200, "read star");
+			res.status(200).send("read star");
 		});
 		
 		// Create
 		rp.create(function (req, res) {
-			res.send(200, "create star");
+			res.status(200).send("create star");
 		});
 		
 		// Update
 		rp.update(function (req, res) {
-			res.send(200, "update star");
+			res.status(200).send("update star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
-			res.send(200, "delete star");
+			res.status(200).send("delete star");
 		});
 		
 		var app = express();
-		app.use(express.bodyParser());
+		app.use(require('body-parser').json());
 		
 		var basePath = '/';
 		rp.app(app);
