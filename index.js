@@ -48,10 +48,10 @@ function restpress(resource, actions) {
 	}
 
 	this.locals = function locals(obj) {
-	    for (var key in obj) {
-	    	locals[key] = obj[key];
-	    }
-	    return obj;
+		for (var key in obj) {
+			locals[key] = obj[key];
+		}
+		return obj;
 	};
 	
 	this._stack = [];
@@ -146,8 +146,12 @@ restpress.prototype.app = function (basePath, app) {
 		};
 
 		self[actionName] = function() {
-			// insert identify as second argument
-            [].unshift.call(arguments, identify);
+			if (identify) {
+				// insert identify as second argument
+				// This is to be done only once
+				[].unshift.call(arguments, identify);
+				identify = null;
+			}
 
 			// insert actionPath as first argument
 			[].unshift.call(arguments, resourcePath + action.route);
