@@ -21,6 +21,7 @@ describe('preApp-stars', function() {
 		// Read
 		rp.read(function (req, res) {
 			assert.equal(req.actionName, 'read');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("read star");
 		});
 		
@@ -33,12 +34,14 @@ describe('preApp-stars', function() {
 		// Update
 		rp.update(function (req, res) {
 			assert.equal(req.actionName, 'update');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("update star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
 			assert.equal(req.actionName, 'delete');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("delete star");
 		});
 		
@@ -82,26 +85,34 @@ describe('postApp-stars', function() {
 		// Methods
 		// List			
 		rp.list(function (req, res) {
+			assert.equal(req.actionName, 'index');
 			res.status(200).send("list post stars");
 		});
 		
 		// Read
 		rp.read(function (req, res) {
+			assert.equal(req.actionName, 'read');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("read post star");
 		});
 		
 		// Create
 		rp.create(function (req, res) {
+			assert.equal(req.actionName, 'create');
 			res.status(200).send("create post star");
 		});
 		
 		// Update
 		rp.update(function (req, res) {
+			assert.equal(req.actionName, 'update');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("update post star");
 		});
 		
 		// Delete
 		rp.delete(function (req, res) {
+			assert.equal(req.actionName, 'delete');
+			assert.equal(req.params.id, 23);
 			res.status(200).send("delete post star");
 		});
 		
