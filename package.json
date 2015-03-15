@@ -26,6 +26,7 @@
   "devDependencies": {
     "express": "4.x",
     "body-parser": "1.x",
+    "restify": "3.x",
     "mocha": "*",
     "supertest": "*"
   },
