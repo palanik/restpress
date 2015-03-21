@@ -54,6 +54,9 @@ function restpress(resource, actions) {
 	if (this.actions.hasOwnProperty('all')) {
 		throw new Error('all is a reserved action');
 	}
+	if (this.actions.hasOwnProperty('use')) {
+		throw new Error('use is a reserved action');
+	}
 
 	this.locals = function locals(obj) {
 		for (var key in obj) {
@@ -68,6 +71,12 @@ function restpress(resource, actions) {
 	this._init();
 }
 
+// Special method 'use' that is applied to root route
+restpress.prototype.use = function() {
+	var args = arguments;
+	this._stack.push({action : 'use', args : args});
+	return this;
+};
 
 // Special method 'all' that is applied to all known actions
 restpress.prototype.all = function() {
@@ -192,6 +201,17 @@ restpress.prototype.app = function (basePath, app) {
 			routeViaApp(a, this.actions[a], basePath + this.resourceName);
 		}
 	}
+
+	// Rewrite use method to work with app.use
+	this.use = function() {
+		if (self.app.locals) {// Express app
+			[].unshift.call(arguments, basePath + self.resourceName);
+		}
+		// restify 'use' doesn't support paths. Call withot paths?
+
+		// Call express app 'use' function
+		self.app['use'].apply(self.app, arguments);
+	};
 
 	// Aliases - point to 'route via app' methods of original actions
 	if (this.actions === _restActions) {
