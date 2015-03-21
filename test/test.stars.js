@@ -7,6 +7,12 @@ var express = require('express')
 describe('preApp-stars', function() {
 		var rp = new restpress('star');
 
+		// Middleware test
+		rp.use(function(req, res, next) {
+			res.header('Cache-Control', 'no-store');
+			next();
+		});
+
 		// Methods
 		// List			
 		rp.list(function (req, res, next) {
@@ -51,6 +57,10 @@ describe('preApp-stars', function() {
 		var basePath = '/';
 		rp.app(app);
 		
+	it('Use Middleware', function(done) {
+		request(app).get(basePath + 'star').expect('Cache-Control', 'no-store', done);	
+	});
+
 	it('Index', function(done) {
 		request(app).get(basePath + 'star').expect(200, "list stars", done);	
 	});
@@ -81,6 +91,12 @@ describe('postApp-stars', function() {
 		var rp = new restpress('star');
 		var basePath = '/space/';
 		rp.app(basePath, app);
+
+		// Middleware test
+		rp.use(function(req, res, next) {
+			res.header('Cache-Control', 'no-cache');
+			next();
+		});
 
 		// Methods
 		// List			
@@ -117,6 +133,10 @@ describe('postApp-stars', function() {
 		});
 		
 		
+	it('Use Middleware', function(done) {
+		request(app).get(basePath + 'star').expect('Cache-Control', 'no-cache', done);	
+	});
+
 	it('Index', function(done) {
 		request(app).get(basePath + 'star').expect(200, "list post stars", done);	
 	});
@@ -141,6 +161,12 @@ describe('postApp-stars', function() {
 
 describe('fileAction-stars', function() {
 		var rp = new restpress('star', './test/star-actions.json');
+
+		// Middleware test
+		rp.use(function(req, res, next) {
+			res.header('Cache-Control', 'max-age=0');
+			next();
+		});
 
 		// Methods
 		// List			
@@ -174,6 +200,10 @@ describe('fileAction-stars', function() {
 		var basePath = '/';
 		rp.app(app);
 		
+	it('Use Middleware', function(done) {
+		request(app).get(basePath + 'star').expect('Cache-Control', 'max-age=0', done);	
+	});
+
 	it('Index', function(done) {
 		request(app).get(basePath + 'star').expect(200, "list stars", done);	
 	});
