@@ -17,6 +17,12 @@ describe('restify:preApp-stars', function() {
 
 		rp.app(server);
 
+		// Middleware test
+		rp.use(function(req, res, next) {
+			res.header('Cache-Control', 'no-store');
+			next();
+		});
+
 		// Methods
 		// List			
 		rp.list(function (req, res, next) {
@@ -64,8 +70,11 @@ describe('restify:preApp-stars', function() {
 	after(function (done) {
 		server.close(done);
 	});
+	
+	it('Use Middleware', function(done) {
+		request.get(basePath + 'star').expect('Cache-Control', 'no-store', done);	
+	});
 
-		
 	it('Index', function(done) {
 		request.get(basePath + 'star').expect(200, {"action": "list stars"}, done);	
 	});
