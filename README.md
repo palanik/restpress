@@ -25,7 +25,7 @@ msg.list(function(req, res) {
 	res.json(data);
 });
 
-msg.get(function(req, res) {
+msg.read(function(req, res) {
 	res.json(data[req.params.id - 1]);
 });
 
@@ -42,19 +42,25 @@ msg.update(function(req, res) {
 module.exports = msg;
 ```
 
+**Express 3.x**
 app.js
 ```js
 var express = require('express');
 var app = express();
 
-/*
- * If your API uses POST/PUT methods, use bodyparser.
- *
- * // Express 3.x
- * app.use(express.bodyParser());
- *
- */
-// Express 4.x
+app.use(express.bodyParser());
+
+require('msg').app(app);
+
+app.listen(3010);
+```
+
+**Express 4.x**
+app.js
+```js
+var express = require('express');
+var app = express();
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 
@@ -63,9 +69,26 @@ require('msg').app(app);
 app.listen(3010);
 ```
 
+**Restify**
+server.js
+```js
+var restify = require('restify');
+var server = restify.createServer();
+
+// To allow training spaces
+server.pre(restify.pre.sanitizePath());
+server.use(restify.bodyParser());
+
+require('msg').app(server);
+
+server.listen(3010, function() {
+  console.log('%s listening at %s', server.name, server.url);
+});
+```
+
 Shift your focus from Routes to Resources, while building RESTful API with node express.
 
-Generally, express applications are built by providing callbacks to defined routes.
+In general, express applications are built by providing callbacks to defined routes.
 But, RESTFul APIs are more about resources and actions on the resources, than about the routes. Restpress brings the two together. 
 Just like connect is to node & express is to connect, restpress enhances express in creating RESTful applications.
 
