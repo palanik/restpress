@@ -97,6 +97,17 @@ Add multiple resources to the same express app.
 
 Although, you create your resources independently, restpress is not a http server. It depends on an express application to run and serve the resources.
 
+
+### Examples
+
+Various examples are available under [examples folder](examples).
+
+Checkout full-fledged [implementation](https://github.com/palanik/MERA-Bears) of RESTful API, with Express and MongoDB.
+
+### Beyond vanilla RESTful APIs
+
+Most API implementations go well beyond the standard RESTful CRUD actions. Restpress is designed to support these type of actions.
+
 ## Test
 
     $ npm test
